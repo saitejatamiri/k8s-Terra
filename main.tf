@@ -42,7 +42,7 @@ resource "aws_instance" "minikube_ec2" {
   vpc_security_group_ids = ["sg-01e44a8c425a86e45"]
   associate_public_ip_address = true
 
-  user_data              = file("userdata.sh")
+  user_data              = file("user-data.sh")
 
   tags = {
     Name = "MinikubeEC2"
