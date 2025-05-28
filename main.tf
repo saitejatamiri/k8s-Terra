@@ -47,7 +47,7 @@ data "aws_ami" "amazon_linux_2" {
 resource "aws_instance" "minikube_ec2" {
   ami                         = data.aws_ami.amazon_linux_2.id
   instance_type               = "t3.medium"
-  key_name                    = "Teja-1"
+  key_name                    = "Teja-2"
   security_groups        = [aws_security_group.allow_ssh_http.name]
   associate_public_ip_address = true
 
