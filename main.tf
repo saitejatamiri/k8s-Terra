@@ -39,7 +39,7 @@ resource "aws_instance" "minikube_ec2" {
   ami                    = "ami-0e58b56aa4d64231b" # Ubuntu 24.04 LTS (verify latest)
   instance_type          = "t2.medium"
   key_name               = "Teja-1"
-  vpc_security_group_ids = ["sg-01e44a8c425a86e45"]
+  security_groups        = [aws_security_group.allow_ssh_http.name]
   associate_public_ip_address = true
 
   user_data              = file("user-data.sh")
