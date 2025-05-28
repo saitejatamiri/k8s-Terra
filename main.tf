@@ -1,30 +1,23 @@
 provider "aws" {
-  region = "us-east-1"
+  region = "eu-north-1"
 }
 
-resource "aws_security_group" "minikube_sg" {
-  name        = "minikube-sg"
-  description = "Allow NodePort and web access"
+resource "aws_security_group" "allow_ssh_http" {
+  name        = "allow_ssh_http"
+  description = "Allow SSH and HTTP inbound"
 
   ingress {
-    from_port   = 30000
-    to_port     = 32767
+    from_port   = 22
+    to_port     = 22
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Allow NodePort
+    cidr_blocks = ["0.0.0.0/0"]  # allow SSH from anywhere (adjust in production)
   }
 
   ingress {
-    from_port   = 80
-    to_port     = 80
+    from_port   = 8081
+    to_port     = 8081
     protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Optional for HTTP apps
-  }
-
-  ingress {
-    from_port   = 443
-    to_port     = 443
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"] # Optional for HTTPS apps
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
@@ -35,16 +28,36 @@ resource "aws_security_group" "minikube_sg" {
   }
 }
 
+data "aws_ami" "amazon_linux_2" {
+  most_recent = true
+
+  filter {
+    name   = "name"
+    values = ["amzn2-ami-hvm-*-x86_64-gp2"]
+  }
+
+  filter {
+    name   = "virtualization-type"
+    values = ["hvm"]
+  }
+
+  owners = ["amazon"]
+}
+
 resource "aws_instance" "minikube_ec2" {
-  ami                    = "ami-0e58b56aa4d64231b" # Ubuntu 24.04 LTS (verify latest)
-  instance_type          = "t2.medium"
-  key_name               = "Teja-1"
-  vpc_security_group_ids = ["sg-01e44a8c425a86e45"]
+  ami                         = data.aws_ami.amazon_linux_2.id
+  instance_type               = "t3.medium"
+  key_name                    = "Teja-1"
+  security_groups        = [aws_security_group.allow_ssh_http.name]
   associate_public_ip_address = true
 
-  user_data              = file("user-data.sh")
+  user_data = file("user-data.sh")
 
   tags = {
-    Name = "MinikubeEC2"
+    Name = "minikube-ec2-instance"
   }
+}
+
+output "instance_public_ip" {
+  value = aws_instance.minikube_ec2.public_ip
 }
