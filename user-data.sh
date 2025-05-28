@@ -1,41 +1,54 @@
 #!/bin/bash
-set -xe
+set +xe
 
-yum update -y
+# Update system and install dependencies
+sudo yum update -y
+sudo yum install -y git conntrack
 
-# install git
-yum install git -y
+# Install Docker
+sudo yum install -y docker
+sudo amazon-linux-extras enable docker
+sudo systemctl start docker
+sudo systemctl enable docker
 
-# Install Docker on Amazon Linux 2
-amazon-linux-extras enable docker
-yum install -y docker
-
-systemctl start docker
-systemctl enable docker
-
-usermod -aG docker ec2-user
-
+sudo usermod -aG docker ec2-user
 
 # Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
-mv kubectl /usr/local/bin/
-chown ec2-user:ec2-user /usr/local/bin/kubectl
-
-# Install conntrack (required for minikube)
-yum install -y conntrack
+sudo mv kubectl /usr/local/bin/
+sudo chown ec2-user:ec2-user /usr/local/bin/kubectl
 
 # Install minikube
 curl -Lo minikube https://storage.googleapis.com/minikube/releases/latest/minikube-linux-amd64
 chmod +x minikube
-mv minikube /usr/local/bin/
-chown ec2-user:ec2-user /usr/local/bin/minikube
-# Start minikube as ec2-user using none driver (bare metal)
-sudo -i -u ec2-user bash -c 'minikube start --driver=docker --force'
+sudo mv minikube /usr/local/bin/
+sudo chown ec2-user:ec2-user /usr/local/bin/minikube
 
-# Ensure /usr/local/bin is in ec2-user's PATH
-grep -qxF 'export PATH=$PATH:/usr/local/bin' /home/ec2-user/.bash_profile || echo 'export PATH=$PATH:/usr/local/bin' >> /home/ec2-user/.bash_profile
-chown ec2-user:ec2-user /home/ec2-user/.bash_profile
+# Ensure PATH for ec2-user includes /usr/local/bin
+if ! grep -q '/usr/local/bin' /home/ec2-user/.bash_profile; then
+  echo 'export PATH=$PATH:/usr/local/bin' >> /home/ec2-user/.bash_profile
+  sudo chown ec2-user:ec2-user /home/ec2-user/.bash_profile
+fi
+
+# Create systemd service file for minikube
+sudo tee /etc/systemd/system/minikube.service > /dev/null <<EOF
+[Unit]
+Description=Minikube Kubernetes
+After=docker.service
+Requires=docker.service
+
+[Service]
+User=ec2-user
+Group=ec2-user
+Environment=PATH=/usr/local/bin:/usr/bin:/bin
+ExecStart=/usr/local/bin/minikube start --force
+EOF
+
+# Reload systemd, enable and start minikube service
+sudo systemctl daemon-reload
+sudo systemctl enable minikube
+sudo systemctl start minikube
 
 docker run  --cpus=1 --memory=2g \
   -e DELEGATE_NAME=docker-delegate-a1a \
