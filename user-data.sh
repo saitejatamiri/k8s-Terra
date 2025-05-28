@@ -16,15 +16,6 @@ systemctl enable docker
 usermod -aG docker ec2-user
 
 
-docker run  --cpus=1 --memory=2g \
-  -e DELEGATE_NAME=docker-delegate-a1a \
-  -e NEXT_GEN="true" \
-  -e DELEGATE_TYPE="DOCKER" \
-  -e ACCOUNT_ID=ucHySz2jQKKWQweZdXyCog \
-  -e DELEGATE_TOKEN=NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY= \
-  -e DELEGATE_TAGS="" \
-  -e MANAGER_HOST_AND_PORT=https://app.harness.io us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:25.05.85903
-
 # Install kubectl
 curl -LO "https://dl.k8s.io/release/$(curl -L -s https://dl.k8s.io/release/stable.txt)/bin/linux/amd64/kubectl"
 chmod +x kubectl
@@ -45,3 +36,12 @@ sudo -i -u ec2-user bash -c 'minikube start --driver=none'
 # Ensure /usr/local/bin is in ec2-user's PATH
 grep -qxF 'export PATH=$PATH:/usr/local/bin' /home/ec2-user/.bash_profile || echo 'export PATH=$PATH:/usr/local/bin' >> /home/ec2-user/.bash_profile
 chown ec2-user:ec2-user /home/ec2-user/.bash_profile
+
+docker run  --cpus=1 --memory=2g \
+  -e DELEGATE_NAME=docker-delegate-a1a \
+  -e NEXT_GEN="true" \
+  -e DELEGATE_TYPE="DOCKER" \
+  -e ACCOUNT_ID=ucHySz2jQKKWQweZdXyCog \
+  -e DELEGATE_TOKEN=NTRhYTY0Mjg3NThkNjBiNjMzNzhjOGQyNjEwOTQyZjY= \
+  -e DELEGATE_TAGS="" \
+  -e MANAGER_HOST_AND_PORT=https://app.harness.io us-docker.pkg.dev/gar-prod-setup/harness-public/harness/delegate:25.05.85903
