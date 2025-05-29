@@ -310,13 +310,5 @@ spec:
                 name: kubernetes-delegate-tamiri-upgrader-config
 EOF
      
-# Allow ec2-user to access Minikube's KUBECONFIG
-sudo chown ec2-user:ec2-user /home/ec2-user/.kube
-
-# Apply delegate.yaml as ec2-user with proper environment
-sudo -i -u ec2-user bash <<EOF
-export KUBECONFIG=/home/ec2-user/.kube/config
-kubectl apply -f /home/ec2-user/delegate.yaml
-EOF
 
 
