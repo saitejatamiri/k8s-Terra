@@ -308,8 +308,7 @@ spec:
             - name: config-volume
               configMap:
                 name: kubernetes-delegate-tamiri-upgrader-config
-
-     EOF
+EOF
      
 # Apply Harness delegate YAML to Minikube
 sudo -i -u ec2-user bash <<EOF
