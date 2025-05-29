@@ -311,7 +311,7 @@ spec:
 EOF
      
 # Allow ec2-user to access Minikube's KUBECONFIG
-chown -R ec2-user:ec2-user /home/ec2-user/.kube
+sudo chown ec2-user:ec2-user /home/ec2-user/.kube
 
 # Apply delegate.yaml as ec2-user with proper environment
 sudo -i -u ec2-user bash <<EOF
