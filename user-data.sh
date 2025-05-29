@@ -311,4 +311,9 @@ spec:
 
      EOF
      
-kubectl apply -f /home/ec2-user/delegate.yaml 
+# Apply Harness delegate YAML to Minikube
+sudo -i -u ec2-user bash <<EOF
+export KUBECONFIG=/home/ec2-user/.kube/config
+kubectl apply -f /home/ec2-user/delegate.yaml
+EOF
+
